@@ -1,32 +1,32 @@
 {
-  "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
-  "type": "datasource",
-  "name": "Columnstore",
-  "id": "getclustered-columnstore-datasource",
-  "metrics": true,
-  "info": {
-    "description": "",
-    "author": {
-      "name": "Getclustered"
-    },
-    "keywords": ["datasource"],
-    "logos": {
-      "small": "img/logo.svg",
-      "large": "img/logo.svg"
-    },
-    "links": [],
-    "screenshots": [],
-    "version": "%VERSION%",
-    "updated": "%TODAY%"
-  },
-  "dependencies": {
-    "grafanaDependency": ">=12.3.0",
-    "plugins": []
-  },
-  "routes": [
-    {
-      "path": "api",
-      "url": "{{ .JsonData.url }}"
-    }
-  ]
+	"$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
+	"type": "datasource",
+	"name": "Columnstore",
+	"id": "getclustered-columnstore-datasource",
+	"metrics": true,
+	"info": {
+		"description": "",
+		"author": {
+			"name": "Getclustered"
+		},
+		"keywords": ["datasource"],
+		"logos": {
+			"small": "img/logo.svg",
+			"large": "img/logo.svg"
+		},
+		"links": [],
+		"screenshots": [],
+		"version": "%VERSION%",
+		"updated": "%TODAY%"
+	},
+	"dependencies": {
+		"grafanaDependency": ">=12.3.0",
+		"plugins": []
+	},
+	"routes": [
+		{
+			"path": "api",
+			"url": "{{ .JsonData.url }}"
+		}
+	]
 }
