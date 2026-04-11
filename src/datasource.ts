@@ -1,93 +1,128 @@
-import { getBackendSrv, isFetchError } from '@grafana/runtime';
 import {
-  CoreApp,
-  DataQueryRequest,
-  DataQueryResponse,
-  DataSourceApi,
-  DataSourceInstanceSettings,
-  createDataFrame,
-  FieldType,
-} from '@grafana/data';
-
-import { MyQuery, MyDataSourceOptions, DEFAULT_QUERY, DataSourceResponse } from './types';
-import { lastValueFrom } from 'rxjs';
+	type CoreApp,
+	createDataFrame,
+	type DataQueryRequest,
+	type DataQueryResponse,
+	DataSourceApi,
+	type DataSourceInstanceSettings,
+	FieldType,
+} from "@grafana/data";
+import { getBackendSrv, isFetchError } from "@grafana/runtime";
+import { lastValueFrom } from "rxjs";
+import {
+	type DataSourceResponse,
+	DEFAULT_QUERY,
+	type MyDataSourceOptions,
+	type MyQuery,
+} from "./types";
 
 export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
-  baseUrl: string;
+	baseUrl: string;
 
-  constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
-    super(instanceSettings);
-    this.baseUrl = instanceSettings.url!;
-  }
+	constructor(
+		instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>,
+	) {
+		super(instanceSettings);
+		this.baseUrl = instanceSettings.url!;
+	}
 
-  getDefaultQuery(_: CoreApp): Partial<MyQuery> {
-    return DEFAULT_QUERY;
-  }
+	getDefaultQuery(_: CoreApp): Partial<MyQuery> {
+		return DEFAULT_QUERY;
+	}
 
-  filterQuery(query: MyQuery): boolean {
-    // if no query has been provided, prevent the query from being executed
-    return !!query.queryText;
-  }
+	async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
+		const { range } = options;
+		const from = range!.from.toISOString();
+		const to = range!.to.toISOString();
 
-  async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
-    const { range } = options;
-    const from = range!.from.valueOf();
-    const to = range!.to.valueOf();
+		const response = await lastValueFrom(
+			getBackendSrv().fetch<Array<Record<string, unknown>>>({
+				url: `${this.baseUrl}/api/query/json?from=${from}&to=${to}`,
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				data: { limit: 1000 },
+			}),
+		);
 
-    // Return a constant for each query.
-    const data = options.targets.map((target) => {
-      return createDataFrame({
-        refId: target.refId,
-        fields: [
-          { name: 'Time', values: [from, to], type: FieldType.time },
-          { name: 'Value', values: [target.constant, target.constant], type: FieldType.number },
-        ],
-      });
-    });
+		// pass 1: discover all keys
+		const allKeys = new Set<string>();
+		for (const row of response.data) {
+			for (const key of Object.keys(row)) allKeys.add(key);
+		}
 
-    return { data };
-  }
+		const frames = new Map<string, unknown[]>();
+		for (const key of allKeys) frames.set(key, []);
 
-  async request(url: string, params?: string) {
-    const response = getBackendSrv().fetch<DataSourceResponse>({
-      url: `${this.baseUrl}/api${url}${params?.length ? `?${params}` : ''}`,
-    });
-    return lastValueFrom(response);
-  }
+		// pass 2: push value or null for every key on every row
+		for (const row of response.data) {
+			for (const key of allKeys) {
+				frames.get(key)!.push(key in row ? row[key] : null);
+			}
+		}
 
-  /**
-   * Checks whether we can connect to the API.
-   */
-  async testDatasource() {
-    const defaultErrorMessage = 'Cannot connect to API';
+		const fields = Array.from(frames.entries()).map(([key, values]) => {
+			if (key === "ts") {
+				return {
+					name: "time",
+					type: FieldType.time,
+					values: values.map((v) => new Date(v as string).getTime()),
+				};
+			}
+			const sample = values.find((v) => v !== null);
+			const type =
+				typeof sample === "number" ? FieldType.number : FieldType.string;
+			return { name: key, type, values };
+		});
 
-    try {
-      const response = await this.request('/health');
-      if (response.status === 200) {
-        return {
-          status: 'success',
-          message: 'Success',
-        };
-      } else {
-        return {
-          status: 'error',
-          message: response.statusText ? response.statusText : defaultErrorMessage,
-        };
-      }
-    } catch (err) {
-      let message = '';
-      if (typeof err === 'string') {
-        message = err;
-      } else if (isFetchError(err)) {
-        message = 'Fetch error: ' + (err.statusText ? err.statusText : defaultErrorMessage);
-        if (err.data && err.data.error && err.data.error.code) {
-          message += ': ' + err.data.error.code + '. ' + err.data.error.message;
-        }
-      }
-      return {
-        status: 'error',
-        message,
-      };
-    }
-  }
+		return {
+			data: [createDataFrame({ refId: options.targets[0].refId, fields })],
+		};
+	}
+
+	async request(url: string, params?: string) {
+		const response = getBackendSrv().fetch<DataSourceResponse>({
+			url: `${this.baseUrl}/api${url}${params?.length ? `?${params}` : ""}`,
+		});
+		return lastValueFrom(response);
+	}
+
+	/**
+	 * Checks whether we can connect to the API.
+	 */
+	async testDatasource() {
+		const defaultErrorMessage = "Cannot connect to API";
+
+		try {
+			const response = await this.request("/healthz");
+			if (response.status === 200) {
+				return {
+					status: "success",
+					message: "Success",
+				};
+			} else {
+				return {
+					status: "error",
+					message: response.statusText
+						? response.statusText
+						: defaultErrorMessage,
+				};
+			}
+		} catch (err) {
+			let message = "";
+			if (typeof err === "string") {
+				message = err;
+			} else if (isFetchError(err)) {
+				message =
+					"Fetch error: " +
+					(err.statusText ? err.statusText : defaultErrorMessage);
+				if (err.data && err.data.error && err.data.error.code) {
+					message += ": " + err.data.error.code + ". " + err.data.error.message;
+				}
+			}
+			return {
+				status: "error",
+				message,
+			};
+		}
+	}
 }
