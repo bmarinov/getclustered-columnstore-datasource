@@ -1,6 +1,7 @@
 import {
 	type CoreApp,
 	createDataFrame,
+	type DataFrame,
 	type DataQueryRequest,
 	type DataQueryResponse,
 	DataSourceApi,
@@ -31,6 +32,10 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 	}
 
 	async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
+		if (options.targets.length === 0) {
+			return Promise.resolve({ data: [] });
+		}
+
 		const { range } = options;
 		const from = range!.from.toISOString();
 		const to = range!.to.toISOString();
@@ -44,38 +49,10 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 			}),
 		);
 
-		// pass 1: discover all keys
-		const allKeys = new Set<string>();
-		for (const row of response.data) {
-			for (const key of Object.keys(row)) allKeys.add(key);
-		}
-
-		const frames = new Map<string, unknown[]>();
-		for (const key of allKeys) frames.set(key, []);
-
-		// pass 2: push value or null for every key on every row
-		for (const row of response.data) {
-			for (const key of allKeys) {
-				frames.get(key)!.push(key in row ? row[key] : null);
-			}
-		}
-
-		const fields = Array.from(frames.entries()).map(([key, values]) => {
-			if (key === "ts") {
-				return {
-					name: "time",
-					type: FieldType.time,
-					values: values.map((v) => new Date(v as string).getTime()),
-				};
-			}
-			const sample = values.find((v) => v !== null);
-			const type =
-				typeof sample === "number" ? FieldType.number : FieldType.string;
-			return { name: key, type, values };
-		});
+		const df: DataFrame = rowsToFrame(response.data, options.targets[0].refId);
 
 		return {
-			data: [createDataFrame({ refId: options.targets[0].refId, fields })],
+			data: [df],
 		};
 	}
 
@@ -125,4 +102,40 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 			};
 		}
 	}
+}
+
+export function rowsToFrame(
+	data: Record<string, unknown>[],
+	refId: string,
+): DataFrame {
+	// pass 1: discover all keys
+	const allKeys = new Set<string>();
+	for (const row of data) {
+		for (const key of Object.keys(row)) allKeys.add(key);
+	}
+
+	const frames = new Map<string, unknown[]>();
+	for (const key of allKeys) frames.set(key, []);
+
+	// pass 2: push value or null for every key on every row
+	for (const row of data) {
+		for (const key of allKeys) {
+			frames.get(key)!.push(key in row ? row[key] : null);
+		}
+	}
+
+	const fields = Array.from(frames.entries()).map(([key, values]) => {
+		if (key === "ts") {
+			return {
+				name: "time",
+				type: FieldType.time,
+				values: values.map((v) => new Date(v as string).getTime()),
+			};
+		}
+		const sample = values.find((v) => v !== null);
+		const type =
+			typeof sample === "number" ? FieldType.number : FieldType.string;
+		return { name: key, type, values };
+	});
+	return createDataFrame({ refId, fields });
 }
