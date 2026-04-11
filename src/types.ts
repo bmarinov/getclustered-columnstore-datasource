@@ -1,13 +1,21 @@
 import type { DataSourceJsonData } from "@grafana/data";
 import type { DataQuery } from "@grafana/schema";
 
-export interface MyQuery extends DataQuery {
-	queryText?: string;
-	constant: number;
+export interface EventQuery extends DataQuery {
+	limit: number;
+	aggregations: Aggregation[];
+	groupBy: string[];
 }
 
-export const DEFAULT_QUERY: Partial<MyQuery> = {
-	constant: 6.5,
+export type Aggregation = {
+	op: AggregationOp;
+	column: string;
+};
+
+export type AggregationOp = "COUNT" | "MAX" | "MIN" | "SUM" | "AVG";
+
+export const DEFAULT_QUERY: Partial<EventQuery> = {
+	limit: 1000,
 };
 
 export interface DataPoint {
@@ -22,7 +30,7 @@ export interface DataSourceResponse {
 /**
  * These are options configured for each DataSource instance
  */
-export interface MyDataSourceOptions extends DataSourceJsonData {
+export interface ColumnStoreOptions extends DataSourceJsonData {
 	url?: string;
 }
 

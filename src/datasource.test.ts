@@ -1,6 +1,13 @@
-import { FieldType } from "@grafana/data";
+import {
+	type DataQueryRequest,
+	type DataSourceInstanceSettings,
+	FieldType,
+} from "@grafana/data";
+import { type BackendSrv, setBackendSrv } from "@grafana/runtime";
+import { of } from "rxjs";
+import type { ColumnStoreOptions, EventQuery } from "types";
 import rows from "./__fixtures__/rows.json";
-import { rowsToFrame } from "./datasource";
+import { DataSource, rowsToFrame } from "./datasource";
 
 describe("rowsToFrame", () => {
 	it("every field has the same length as number of rows", () => {
@@ -54,5 +61,40 @@ describe("rowsToFrame", () => {
 
 		// row 0 has no network fields — they should be null
 		expect(get("system.network.connections.ESTABLISHED")).toBeNull();
+	});
+});
+
+describe("queryParams", () => {
+	const mockFetch = jest.fn().mockReturnValue(of({ data: [] }));
+	beforeEach(() => {
+		mockFetch.mockClear();
+		setBackendSrv({ fetch: mockFetch } as unknown as BackendSrv);
+	});
+
+	it("forwards aggregations to backend", async () => {
+		const ds = new DataSource({
+			url: "https://localhost",
+			jsonData: {},
+		} as unknown as DataSourceInstanceSettings<ColumnStoreOptions>);
+
+		await ds.query({
+			targets: [
+				{
+					aggregations: [{ op: "AVG", column: "duration_ms" }],
+					limit: 125,
+				},
+			],
+			range: {
+				from: { toISOString: () => "2026-01-01T00:00:00Z" },
+				to: { toISOString: () => "2026-01-02T00:00:00Z" },
+			},
+		} as unknown as DataQueryRequest<EventQuery>);
+		expect(mockFetch).toHaveBeenCalledWith(
+			expect.objectContaining({
+				data: expect.objectContaining({
+					aggregations: [{ op: "AVG", column: "duration_ms" }],
+				}),
+			}),
+		);
 	});
 });

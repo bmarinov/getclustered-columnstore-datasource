@@ -11,27 +11,29 @@ import {
 import { getBackendSrv, isFetchError } from "@grafana/runtime";
 import { lastValueFrom } from "rxjs";
 import {
+	type ColumnStoreOptions,
 	type DataSourceResponse,
 	DEFAULT_QUERY,
-	type MyDataSourceOptions,
-	type MyQuery,
+	type EventQuery,
 } from "./types";
 
-export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
+export class DataSource extends DataSourceApi<EventQuery, ColumnStoreOptions> {
 	baseUrl: string;
 
 	constructor(
-		instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>,
+		instanceSettings: DataSourceInstanceSettings<ColumnStoreOptions>,
 	) {
 		super(instanceSettings);
 		this.baseUrl = instanceSettings.url!;
 	}
 
-	getDefaultQuery(_: CoreApp): Partial<MyQuery> {
+	getDefaultQuery(_: CoreApp): Partial<EventQuery> {
 		return DEFAULT_QUERY;
 	}
 
-	async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
+	async query(
+		options: DataQueryRequest<EventQuery>,
+	): Promise<DataQueryResponse> {
 		if (options.targets.length === 0) {
 			return Promise.resolve({ data: [] });
 		}
@@ -45,7 +47,11 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 				url: `${this.baseUrl}/api/query/json?from=${from}&to=${to}`,
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				data: { limit: 1000 },
+				data: {
+					limit: options.targets[0].limit,
+					aggregations: options.targets[0].aggregations,
+					groupBy: options.targets[0].groupBy,
+				},
 			}),
 		);
 
@@ -70,7 +76,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 		const defaultErrorMessage = "Cannot connect to API";
 
 		try {
-			const response = await this.request("/healthz");
+			const response = await this.request("/health");
 			if (response.status === 200) {
 				return {
 					status: "success",
@@ -105,17 +111,21 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 }
 
 export function rowsToFrame(
-	data: Record<string, unknown>[],
+	data: Array<Record<string, unknown>>,
 	refId: string,
 ): DataFrame {
 	// pass 1: discover all keys
 	const allKeys = new Set<string>();
 	for (const row of data) {
-		for (const key of Object.keys(row)) allKeys.add(key);
+		for (const key of Object.keys(row)) {
+			allKeys.add(key);
+		}
 	}
 
 	const frames = new Map<string, unknown[]>();
-	for (const key of allKeys) frames.set(key, []);
+	for (const key of allKeys) {
+		frames.set(key, []);
+	}
 
 	// pass 2: push value or null for every key on every row
 	for (const row of data) {

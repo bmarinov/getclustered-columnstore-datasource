@@ -1,11 +1,11 @@
 import type { DataSourcePluginOptionsEditorProps } from "@grafana/data";
 import { InlineField, Input, SecretInput } from "@grafana/ui";
 import React, { type ChangeEvent } from "react";
-import type { MyDataSourceOptions, MySecureJsonData } from "../types";
+import type { ColumnStoreOptions, MySecureJsonData } from "../types";
 
 interface Props
 	extends DataSourcePluginOptionsEditorProps<
-		MyDataSourceOptions,
+		ColumnStoreOptions,
 		MySecureJsonData
 	> {}
 
