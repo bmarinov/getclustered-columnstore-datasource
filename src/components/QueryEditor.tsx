@@ -8,12 +8,31 @@ import {
 } from "@grafana/ui";
 import React, { type ChangeEvent } from "react";
 import type { DataSource } from "../datasource";
-import type { AggregationOp, ColumnStoreOptions, EventQuery } from "../types";
+import type { AggregationOp, ColumnStoreOptions, EventQuery, Filter, FilterOp } from "../types";
 
 type Props = QueryEditorProps<DataSource, EventQuery, ColumnStoreOptions>;
 
+const FILTER_OPS: Array<{ label: string; value: FilterOp }> = [
+	{ label: "eq", value: "eq" },
+	{ label: "exists", value: "exists" },
+];
+
 export function QueryEditor({ query, onChange, onRunQuery }: Props) {
-	const { aggregations, limit, groupBy } = query;
+	const { aggregations, limit, groupBy, filters } = query;
+
+	const updateFilter = (index: number, patch: Partial<Filter>) => {
+		const updated = (filters ?? []).map((f, i) => (i === index ? { ...f, ...patch } : f));
+		onChange({ ...query, filters: updated });
+	};
+
+	const addFilter = () => {
+		onChange({ ...query, filters: [...(filters ?? []), { id: crypto.randomUUID(), field: "", op: "eq" as FilterOp }] });
+	};
+
+	const removeFilter = (index: number) => {
+		onChange({ ...query, filters: (filters ?? []).filter((_, i) => i !== index) });
+		onRunQuery();
+	};
 
 	const onOpChange = (item: ComboboxOption<string> | null) => {
 		if (!item?.value) {
@@ -88,6 +107,37 @@ export function QueryEditor({ query, onChange, onRunQuery }: Props) {
 					width={8}
 				/>
 			</InlineField>
+			{(filters ?? []).map((filter, i) => (
+				<Stack key={filter.id} gap={0}>
+					<InlineField label="Field">
+						<Input
+							value={filter.field}
+							onChange={(e: ChangeEvent<HTMLInputElement>) => updateFilter(i, { field: e.target.value })}
+							onBlur={onRunQuery}
+							placeholder="field name"
+						/>
+					</InlineField>
+					<InlineField label="Op">
+						<Combobox<string>
+							options={FILTER_OPS}
+							value={filter.op}
+							onChange={(item) => { if (item) { updateFilter(i, { op: item.value as FilterOp }); } }}
+						/>
+					</InlineField>
+					{filter.op === "eq" && (
+						<InlineField label="Value">
+							<Input
+								value={String(filter.value ?? "")}
+								onChange={(e: ChangeEvent<HTMLInputElement>) => updateFilter(i, { value: e.target.value })}
+								onBlur={onRunQuery}
+								placeholder="value"
+							/>
+						</InlineField>
+					)}
+					<button type="button" onClick={() => removeFilter(i)}>✕</button>
+				</Stack>
+			))}
+			<button type="button" onClick={addFilter}>+ Add Filter</button>
 		</Stack>
 	);
 }

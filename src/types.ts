@@ -3,9 +3,19 @@ import type { DataQuery } from "@grafana/schema";
 
 export interface EventQuery extends DataQuery {
 	limit: number;
-	aggregations: Aggregation[];
-	groupBy: string[];
+	aggregations: Array<Aggregation>;
+	groupBy: Array<string>;
+	filters: Array<Filter>;
 }
+
+export type FilterOp = "eq" | "exists";
+
+export type Filter = {
+	id: string;
+	field: string;
+	op: FilterOp;
+	value?: string | number | boolean;
+};
 
 export type Aggregation = {
 	op: AggregationOp;

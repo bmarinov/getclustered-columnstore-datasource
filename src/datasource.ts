@@ -51,6 +51,7 @@ export class DataSource extends DataSourceApi<EventQuery, ColumnStoreOptions> {
 					limit: options.targets[0].limit,
 					aggregations: options.targets[0].aggregations,
 					groupBy: options.targets[0].groupBy,
+					filters: (options.targets[0].filters ?? []).map(({ id: _, ...f }) => f),
 				},
 			}),
 		);
