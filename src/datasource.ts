@@ -42,28 +42,26 @@ export class DataSource extends DataSourceApi<EventQuery, ColumnStoreOptions> {
 		const from = range!.from.toISOString();
 		const to = range!.to.toISOString();
 
-		const response = await lastValueFrom(
-			getBackendSrv().fetch<Array<Record<string, unknown>>>({
-				url: `${this.baseUrl}/api/query/json?from=${from}&to=${to}`,
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				data: {
-					limit: options.targets[0].limit,
-					select: options.targets[0].select,
-					aggregations: options.targets[0].aggregations,
-					groupBy: options.targets[0].groupBy,
-					filters: (options.targets[0].filters ?? []).map(
-						({ id: _, ...f }) => f,
-					),
-				},
-			}),
+		const frames = await Promise.all(
+			options.targets.map((target) =>
+				lastValueFrom(
+					getBackendSrv().fetch<Array<Record<string, unknown>>>({
+						url: `${this.baseUrl}/api/query/json?from=${from}&to=${to}`,
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						data: {
+							limit: target.limit,
+							select: target.select,
+							aggregations: target.aggregations,
+							groupBy: target.groupBy,
+							filters: (target.filters ?? []).map(({ id: _, ...f }) => f),
+						},
+					}),
+				).then((response) => rowsToFrame(response.data, target.refId)),
+			),
 		);
 
-		const df: DataFrame = rowsToFrame(response.data, options.targets[0].refId);
-
-		return {
-			data: [df],
-		};
+		return { data: frames };
 	}
 
 	async request(url: string, params?: string) {
