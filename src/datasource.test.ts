@@ -71,6 +71,33 @@ describe("queryParams", () => {
 		setBackendSrv({ fetch: mockFetch } as unknown as BackendSrv);
 	});
 
+	it("forwards select to backend", async () => {
+		const ds = new DataSource({
+			url: "https://localhost",
+			jsonData: {},
+		} as unknown as DataSourceInstanceSettings<ColumnStoreOptions>);
+
+		await ds.query({
+			targets: [
+				{
+					select: ["store_buf_rows", "go_memstats_heap_alloc_bytes"],
+					limit: 100,
+				},
+			],
+			range: {
+				from: { toISOString: () => "2026-01-01T00:00:00Z" },
+				to: { toISOString: () => "2026-01-02T00:00:00Z" },
+			},
+		} as unknown as DataQueryRequest<EventQuery>);
+		expect(mockFetch).toHaveBeenCalledWith(
+			expect.objectContaining({
+				data: expect.objectContaining({
+					select: ["store_buf_rows", "go_memstats_heap_alloc_bytes"],
+				}),
+			}),
+		);
+	});
+
 	it("forwards aggregations to backend", async () => {
 		const ds = new DataSource({
 			url: "https://localhost",

@@ -49,9 +49,12 @@ export class DataSource extends DataSourceApi<EventQuery, ColumnStoreOptions> {
 				headers: { "Content-Type": "application/json" },
 				data: {
 					limit: options.targets[0].limit,
+					select: options.targets[0].select,
 					aggregations: options.targets[0].aggregations,
 					groupBy: options.targets[0].groupBy,
-					filters: (options.targets[0].filters ?? []).map(({ id: _, ...f }) => f),
+					filters: (options.targets[0].filters ?? []).map(
+						({ id: _, ...f }) => f,
+					),
 				},
 			}),
 		);
@@ -99,8 +102,8 @@ export class DataSource extends DataSourceApi<EventQuery, ColumnStoreOptions> {
 				message =
 					"Fetch error: " +
 					(err.statusText ? err.statusText : defaultErrorMessage);
-				if (err.data && err.data.error && err.data.error.code) {
-					message += ": " + err.data.error.code + ". " + err.data.error.message;
+				if (err.data?.error?.code) {
+					message += `: ${err.data.error.code}. ${err.data.error.message}`;
 				}
 			}
 			return {

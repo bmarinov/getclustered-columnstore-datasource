@@ -1,5 +1,6 @@
 import type { DataSourcePluginOptionsEditorProps } from "@grafana/data";
 import { InlineField, Input, SecretInput } from "@grafana/ui";
+// biome-ignore lint/correctness/noUnusedImports: React required for classic JSX transform
 import React, { type ChangeEvent } from "react";
 import type { ColumnStoreOptions, MySecureJsonData } from "../types";
 

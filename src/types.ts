@@ -3,6 +3,7 @@ import type { DataQuery } from "@grafana/schema";
 
 export interface EventQuery extends DataQuery {
 	limit: number;
+	select: Array<string>;
 	aggregations: Array<Aggregation>;
 	groupBy: Array<string>;
 	filters: Array<Filter>;
