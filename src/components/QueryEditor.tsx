@@ -181,7 +181,7 @@ export function QueryEditor({ query, onChange, onRunQuery }: Props) {
 				</Button>
 			</InlineFieldRow>
 
-			{/* Last row: AGGREGATE + GROUP BY */}
+			{/* Last row: AGGREGATE + BUCKET + GROUP BY */}
 			<InlineFieldRow>
 				<InlineField label="AGGREGATE">
 					<Combobox<string>
@@ -206,6 +206,31 @@ export function QueryEditor({ query, onChange, onRunQuery }: Props) {
 							onBlur={onRunQuery}
 							placeholder="field name"
 							width={20}
+						/>
+					</InlineField>
+				)}
+				{aggregations?.[0]?.op && (
+					<InlineField label="BUCKET" tooltip="Time bucket size for the aggregation. 'auto' follows Grafana's interval.">
+						<Combobox<string>
+							options={[
+								{ label: "none", value: "" },
+								{ label: "auto", value: "auto" },
+								{ label: "10s", value: "10s" },
+								{ label: "30s", value: "30s" },
+								{ label: "1m", value: "1m" },
+								{ label: "5m", value: "5m" },
+								{ label: "10m", value: "10m" },
+								{ label: "30m", value: "30m" },
+								{ label: "1h", value: "1h" },
+								{ label: "6h", value: "6h" },
+								{ label: "1d", value: "1d" },
+							]}
+							value={query.window ?? ""}
+							onChange={(item) => {
+								onChange({ ...query, window: item?.value || undefined });
+								onRunQuery();
+							}}
+							width={10}
 						/>
 					</InlineField>
 				)}
