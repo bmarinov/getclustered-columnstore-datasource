@@ -7,6 +7,9 @@ export interface EventQuery extends DataQuery {
 	aggregations: Array<Aggregation>;
 	groupBy: Array<string>;
 	filters: Array<Filter>;
+	// Time bucket size for aggregations. "auto" uses Grafana's calculated interval,
+	// a duration string (e.g. "1m", "5m") requests a fixed bucket, undefined = no bucketing.
+	window?: string;
 }
 
 export type FilterOp = "eq" | "exists";
