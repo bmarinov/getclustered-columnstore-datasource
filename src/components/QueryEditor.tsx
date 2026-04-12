@@ -39,6 +39,11 @@ const AGG_OPS = [
 export function QueryEditor({ query, onChange, onRunQuery }: Props) {
 	const { aggregations, limit, groupBy, filters, select } = query;
 
+	// Fires query when Enter is pressed in a text input.
+	const runOnEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+		if (e.key === "Enter") onRunQuery();
+	};
+
 	// SELECT
 	const addSelect = (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === "Enter" && e.currentTarget.value) {
@@ -65,13 +70,14 @@ export function QueryEditor({ query, onChange, onRunQuery }: Props) {
 			],
 		});
 	};
-	const updateFilter = (index: number, patch: Partial<Filter>) => {
+	const updateFilter = (index: number, patch: Partial<Filter>, run = false) => {
 		onChange({
 			...query,
 			filters: (filters ?? []).map((f, i) =>
 				i === index ? { ...f, ...patch } : f,
 			),
 		});
+		if (run) onRunQuery();
 	};
 	const removeFilter = (index: number) => {
 		onChange({
@@ -122,7 +128,7 @@ export function QueryEditor({ query, onChange, onRunQuery }: Props) {
 						onChange={(e: ChangeEvent<HTMLInputElement>) =>
 							onChange({ ...query, limit: parseInt(e.target.value, 10) })
 						}
-						onBlur={onRunQuery}
+						onKeyDown={runOnEnter}
 						width={8}
 					/>
 				</InlineField>
@@ -137,7 +143,7 @@ export function QueryEditor({ query, onChange, onRunQuery }: Props) {
 							onChange={(e: ChangeEvent<HTMLInputElement>) =>
 								updateFilter(i, { field: e.target.value })
 							}
-							onBlur={onRunQuery}
+							onKeyDown={runOnEnter}
 							placeholder="field"
 							width={20}
 						/>
@@ -148,8 +154,11 @@ export function QueryEditor({ query, onChange, onRunQuery }: Props) {
 							value={filter.op}
 							onChange={(item) => {
 								if (item) {
-									updateFilter(i, { op: item.value as FilterOp });
-									onRunQuery();
+									updateFilter(
+										i,
+										{ op: item.value as FilterOp },
+										item.value === "exists",
+									);
 								}
 							}}
 							width={10}
@@ -162,7 +171,7 @@ export function QueryEditor({ query, onChange, onRunQuery }: Props) {
 								onChange={(e: ChangeEvent<HTMLInputElement>) =>
 									updateFilter(i, { value: e.target.value })
 								}
-								onBlur={onRunQuery}
+								onKeyDown={runOnEnter}
 								placeholder="value"
 								width={20}
 							/>
@@ -203,14 +212,17 @@ export function QueryEditor({ query, onChange, onRunQuery }: Props) {
 									],
 								})
 							}
-							onBlur={onRunQuery}
+							onKeyDown={runOnEnter}
 							placeholder="field name"
 							width={20}
 						/>
 					</InlineField>
 				)}
 				{aggregations?.[0]?.op && (
-					<InlineField label="BUCKET" tooltip="Time bucket size for the aggregation. 'auto' follows Grafana's interval.">
+					<InlineField
+						label="BUCKET"
+						tooltip="Time bucket size for the aggregation. 'auto' follows Grafana's interval."
+					>
 						<Combobox<string>
 							options={[
 								{ label: "none", value: "" },
@@ -244,7 +256,7 @@ export function QueryEditor({ query, onChange, onRunQuery }: Props) {
 								.filter(Boolean);
 							onChange({ ...query, groupBy: vals });
 						}}
-						onBlur={onRunQuery}
+						onKeyDown={runOnEnter}
 						placeholder="field1, field2"
 						width={24}
 					/>
