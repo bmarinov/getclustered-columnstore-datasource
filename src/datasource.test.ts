@@ -44,23 +44,23 @@ describe("rowsToFrame", () => {
 		}
 	});
 
-	it("row 0 memory values match fixture exactly", () => {
+	it("row 0 disk values match fixture exactly", () => {
 		const frame = rowsToFrame(rows, "A");
 		const get = (name: string) =>
 			frame.fields.find((f) => f.name === name)!.values[0];
 
-		expect(get("system.memory.usage.buffered")).toBe(323584);
-		expect(get("system.memory.usage.cached")).toBe(23399723008);
-		expect(get("system.memory.usage.free")).toBe(1171554304);
-		expect(get("system.memory.usage.slab_reclaimable")).toBe(2073030656);
-		expect(get("system.memory.usage.slab_unreclaimable")).toBe(1148198912);
-		expect(get("system.memory.usage.used")).toBe(38139408384);
+		expect(get("host.name")).toBe("fw3kd");
+		expect(get("os.type")).toBe("linux");
+		expect(get("system.disk.io.read")).toBe(56620475904);
+		expect(get("system.disk.io.write")).toBe(553002447872);
+		expect(get("system.disk.operations.read")).toBe(101);
+		expect(get("system.disk.operations.write")).toBe(0);
 		expect(get("time")).toBe(
-			new Date("2026-04-11T16:38:09.937993854Z").getTime(),
+			new Date("2026-04-12T08:18:19.921005728Z").getTime(),
 		);
 
-		// row 0 has no network fields — they should be null
-		expect(get("system.network.connections.ESTABLISHED")).toBeNull();
+		// row 0 has no memory fields — they should be null
+		expect(get("system.memory.usage.used")).toBeNull();
 	});
 });
 
