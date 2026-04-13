@@ -17,6 +17,29 @@ import {
 	type EventQuery,
 } from "./types";
 
+const DURATION_NS: Record<string, number> = {
+	s: 1_000_000_000,
+	m: 60 * 1_000_000_000,
+	h: 3_600 * 1_000_000_000,
+	d: 86_400 * 1_000_000_000,
+};
+
+/** Convert a UI window string to nanoseconds for the backend.
+ *  "auto" → Grafana's intervalMs converted to ns.
+ *  "1m", "5m", … → parsed fixed duration in ns.
+ *  undefined / "" → undefined (no windowing).
+ */
+export function windowToNs(
+	window: string | undefined,
+	intervalMs: number,
+): number | undefined {
+	if (!window) return undefined;
+	if (window === "auto") return Math.round(intervalMs * 1_000_000);
+	const m = window.match(/^(\d+)([smhd])$/);
+	if (!m) return undefined;
+	return parseInt(m[1], 10) * DURATION_NS[m[2]];
+}
+
 export class DataSource extends DataSourceApi<EventQuery, ColumnStoreOptions> {
 	baseUrl: string;
 
@@ -55,6 +78,7 @@ export class DataSource extends DataSourceApi<EventQuery, ColumnStoreOptions> {
 							aggregations: target.aggregations,
 							groupBy: target.groupBy,
 							filters: (target.filters ?? []).map(({ id: _, ...f }) => f),
+							window: windowToNs(target.window, options.intervalMs),
 						},
 					}),
 				).then((response) => rowsToFrame(response.data, target.refId)),

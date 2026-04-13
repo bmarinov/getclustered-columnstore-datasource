@@ -7,7 +7,7 @@ import { type BackendSrv, setBackendSrv } from "@grafana/runtime";
 import { of } from "rxjs";
 import type { ColumnStoreOptions, EventQuery } from "types";
 import rows from "./__fixtures__/rows.json";
-import { DataSource, rowsToFrame } from "./datasource";
+import { DataSource, rowsToFrame, windowToNs } from "./datasource";
 
 describe("rowsToFrame", () => {
 	it("every field has the same length as number of rows", () => {
@@ -64,6 +64,23 @@ describe("rowsToFrame", () => {
 	});
 });
 
+describe("windowToNs", () => {
+	it("returns undefined for empty/undefined", () => {
+		expect(windowToNs(undefined, 15000)).toBeUndefined();
+		expect(windowToNs("", 15000)).toBeUndefined();
+	});
+	it("converts fixed durations to nanoseconds", () => {
+		expect(windowToNs("10s", 0)).toBe(10_000_000_000);
+		expect(windowToNs("1m", 0)).toBe(60_000_000_000);
+		expect(windowToNs("5m", 0)).toBe(300_000_000_000);
+		expect(windowToNs("1h", 0)).toBe(3_600_000_000_000);
+		expect(windowToNs("1d", 0)).toBe(86_400_000_000_000);
+	});
+	it("auto uses intervalMs converted to ns", () => {
+		expect(windowToNs("auto", 15000)).toBe(15_000_000_000);
+	});
+});
+
 describe("queryParams", () => {
 	const mockFetch = jest.fn().mockReturnValue(of({ data: [] }));
 	beforeEach(() => {
@@ -94,6 +111,48 @@ describe("queryParams", () => {
 				data: expect.objectContaining({
 					select: ["store_buf_rows", "go_memstats_heap_alloc_bytes"],
 				}),
+			}),
+		);
+	});
+
+	it("forwards fixed window as nanoseconds to backend", async () => {
+		const ds = new DataSource({
+			url: "https://localhost",
+			jsonData: {},
+		} as unknown as DataSourceInstanceSettings<ColumnStoreOptions>);
+
+		await ds.query({
+			targets: [{ window: "5m", limit: 100 }],
+			intervalMs: 0,
+			range: {
+				from: { toISOString: () => "2026-01-01T00:00:00Z" },
+				to: { toISOString: () => "2026-01-02T00:00:00Z" },
+			},
+		} as unknown as DataQueryRequest<EventQuery>);
+		expect(mockFetch).toHaveBeenCalledWith(
+			expect.objectContaining({
+				data: expect.objectContaining({ window: 300_000_000_000 }),
+			}),
+		);
+	});
+
+	it("auto window sends intervalMs as nanoseconds", async () => {
+		const ds = new DataSource({
+			url: "https://localhost",
+			jsonData: {},
+		} as unknown as DataSourceInstanceSettings<ColumnStoreOptions>);
+
+		await ds.query({
+			targets: [{ window: "auto", limit: 100 }],
+			intervalMs: 15000,
+			range: {
+				from: { toISOString: () => "2026-01-01T00:00:00Z" },
+				to: { toISOString: () => "2026-01-02T00:00:00Z" },
+			},
+		} as unknown as DataQueryRequest<EventQuery>);
+		expect(mockFetch).toHaveBeenCalledWith(
+			expect.objectContaining({
+				data: expect.objectContaining({ window: 15_000_000_000 }),
 			}),
 		);
 	});
