@@ -17,8 +17,7 @@
 		"rules": {
 			"recommended": true,
 			"style": {
-				"useImportType": "off",
-				"noNonNullAssertion": "off"
+				"useImportType": "off"
 			}
 		}
 	},
