@@ -47,7 +47,7 @@ export class DataSource extends DataSourceApi<EventQuery, ColumnStoreOptions> {
 		instanceSettings: DataSourceInstanceSettings<ColumnStoreOptions>,
 	) {
 		super(instanceSettings);
-		this.baseUrl = instanceSettings.url!;
+		this.baseUrl = instanceSettings.url ?? "";
 	}
 
 	getDefaultQuery(_: CoreApp): Partial<EventQuery> {
@@ -62,8 +62,11 @@ export class DataSource extends DataSourceApi<EventQuery, ColumnStoreOptions> {
 		}
 
 		const { range } = options;
-		const from = range!.from.toISOString();
-		const to = range!.to.toISOString();
+		if (!range) {
+			return Promise.resolve({ data: [] });
+		}
+		const from = range.from.toISOString();
+		const to = range.to.toISOString();
 
 		const frames = await Promise.all(
 			options.targets.map((target) =>
@@ -156,7 +159,7 @@ export function rowsToFrame(
 	// pass 2: push value or null for every key on every row
 	for (const row of data) {
 		for (const key of allKeys) {
-			frames.get(key)!.push(key in row ? row[key] : null);
+			frames.get(key)?.push(key in row ? row[key] : null);
 		}
 	}
 

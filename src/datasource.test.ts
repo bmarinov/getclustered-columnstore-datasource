@@ -21,8 +21,8 @@ describe("rowsToFrame", () => {
 		const frame = rowsToFrame(rows, "A");
 		const timeField = frame.fields.find((f) => f.name === "time");
 		expect(timeField).toBeDefined();
-		expect(timeField!.type).toBe(FieldType.time);
-		expect(timeField!.values.every((v: unknown) => typeof v === "number")).toBe(
+		expect(timeField?.type).toBe(FieldType.time);
+		expect(timeField?.values.every((v: unknown) => typeof v === "number")).toBe(
 			true,
 		);
 	});
@@ -47,7 +47,7 @@ describe("rowsToFrame", () => {
 	it("row 0 disk values match fixture exactly", () => {
 		const frame = rowsToFrame(rows, "A");
 		const get = (name: string) =>
-			frame.fields.find((f) => f.name === name)!.values[0];
+			frame.fields.find((f) => f.name === name)?.values[0];
 
 		expect(get("host.name")).toBe("fw3kd");
 		expect(get("os.type")).toBe("linux");
@@ -78,6 +78,11 @@ describe("windowToNs", () => {
 	});
 	it("auto uses intervalMs converted to ns", () => {
 		expect(windowToNs("auto", 15000)).toBe(15_000_000_000);
+	});
+	it("returns undefined for unrecognised unit strings", () => {
+		expect(windowToNs("2w", 0)).toBeUndefined();
+		expect(windowToNs("1y", 0)).toBeUndefined();
+		expect(windowToNs("bad", 0)).toBeUndefined();
 	});
 });
 
