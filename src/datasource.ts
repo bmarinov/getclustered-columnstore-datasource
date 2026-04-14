@@ -17,6 +17,29 @@ import {
 	type EventQuery,
 } from "./types";
 
+const DURATION_NS: Record<string, number> = {
+	s: 1_000_000_000,
+	m: 60 * 1_000_000_000,
+	h: 3_600 * 1_000_000_000,
+	d: 86_400 * 1_000_000_000,
+};
+
+/** Convert a UI window string to nanoseconds for the backend.
+ *  "auto" → Grafana's intervalMs converted to ns.
+ *  "1m", "5m", … → parsed fixed duration in ns.
+ *  undefined / "" → undefined (no windowing).
+ */
+export function windowToNs(
+	window: string | undefined,
+	intervalMs: number,
+): number | undefined {
+	if (!window) return undefined;
+	if (window === "auto") return Math.round(intervalMs * 1_000_000);
+	const m = window.match(/^(\d+)([smhd])$/);
+	if (!m) return undefined;
+	return parseInt(m[1], 10) * DURATION_NS[m[2]];
+}
+
 export class DataSource extends DataSourceApi<EventQuery, ColumnStoreOptions> {
 	baseUrl: string;
 
@@ -24,7 +47,7 @@ export class DataSource extends DataSourceApi<EventQuery, ColumnStoreOptions> {
 		instanceSettings: DataSourceInstanceSettings<ColumnStoreOptions>,
 	) {
 		super(instanceSettings);
-		this.baseUrl = instanceSettings.url!;
+		this.baseUrl = instanceSettings.url ?? "";
 	}
 
 	getDefaultQuery(_: CoreApp): Partial<EventQuery> {
@@ -39,8 +62,11 @@ export class DataSource extends DataSourceApi<EventQuery, ColumnStoreOptions> {
 		}
 
 		const { range } = options;
-		const from = range!.from.toISOString();
-		const to = range!.to.toISOString();
+		if (!range) {
+			return Promise.resolve({ data: [] });
+		}
+		const from = range.from.toISOString();
+		const to = range.to.toISOString();
 
 		const frames = await Promise.all(
 			options.targets.map((target) =>
@@ -55,6 +81,7 @@ export class DataSource extends DataSourceApi<EventQuery, ColumnStoreOptions> {
 							aggregations: target.aggregations,
 							groupBy: target.groupBy,
 							filters: (target.filters ?? []).map(({ id: _, ...f }) => f),
+							window: windowToNs(target.window, options.intervalMs),
 						},
 					}),
 				).then((response) => rowsToFrame(response.data, target.refId)),
@@ -132,7 +159,7 @@ export function rowsToFrame(
 	// pass 2: push value or null for every key on every row
 	for (const row of data) {
 		for (const key of allKeys) {
-			frames.get(key)!.push(key in row ? row[key] : null);
+			frames.get(key)?.push(key in row ? row[key] : null);
 		}
 	}
 

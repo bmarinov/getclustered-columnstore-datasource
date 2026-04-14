@@ -1,5 +1,6 @@
 import type { QueryEditorProps } from "@grafana/data";
 import {
+	Alert,
 	Button,
 	Combobox,
 	type ComboboxOption,
@@ -11,7 +12,7 @@ import {
 	Tag,
 } from "@grafana/ui";
 import React, { type ChangeEvent } from "react";
-import type { DataSource } from "../datasource";
+import { type DataSource, windowToNs } from "../datasource";
 import type {
 	AggregationOp,
 	ColumnStoreOptions,
@@ -38,6 +39,9 @@ const AGG_OPS = [
 
 export function QueryEditor({ query, onChange, onRunQuery }: Props) {
 	const { aggregations, limit, groupBy, filters, select } = query;
+
+	const windowInvalid =
+		!!query.window && windowToNs(query.window, 0) === undefined;
 
 	// Fires query when Enter is pressed in a text input.
 	const runOnEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -242,6 +246,8 @@ export function QueryEditor({ query, onChange, onRunQuery }: Props) {
 								onChange({ ...query, window: item?.value || undefined });
 								onRunQuery();
 							}}
+							createCustomValue
+							customValueDescription="Any duration: 30s, 2m, 6h, …"
 							width={10}
 						/>
 					</InlineField>
@@ -262,6 +268,12 @@ export function QueryEditor({ query, onChange, onRunQuery }: Props) {
 					/>
 				</InlineField>
 			</InlineFieldRow>
+			{windowInvalid && (
+				<Alert
+					title={`Unrecognised window "${query.window}" — use a duration like 30s, 5m, 1h, or "auto"`}
+					severity="warning"
+				/>
+			)}
 		</Stack>
 	);
 }
