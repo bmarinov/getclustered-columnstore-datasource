@@ -26,7 +26,17 @@ type Props = QueryEditorProps<DataSource, EventQuery, ColumnStoreOptions>;
 const FILTER_OPS: Array<{ label: string; value: FilterOp }> = [
 	{ label: "eq", value: "eq" },
 	{ label: "exists", value: "exists" },
+	{ label: "not exists", value: "not_exists" },
+	{ label: ">", value: "gt" },
+	{ label: "<", value: "lt" },
+	{ label: ">=", value: "gte" },
+	{ label: "<=", value: "lte" },
 ];
+
+function needsValue(op: FilterOp): boolean {
+	return op === "eq" || op === "gt" || op === "lt" || op === "gte" || op === "lte";
+}
+
 
 const AGG_OPS = [
 	{ label: "None", value: "" },
@@ -161,14 +171,14 @@ export function QueryEditor({ query, onChange, onRunQuery }: Props) {
 									updateFilter(
 										i,
 										{ op: item.value as FilterOp },
-										item.value === "exists",
+										item.value === "exists" || item.value === "not_exists",
 									);
 								}
 							}}
 							width={10}
 						/>
 					</InlineField>
-					{filter.op === "eq" && (
+					{needsValue(filter.op) && (
 						<InlineField label="">
 							<Input
 								value={String(filter.value ?? "")}

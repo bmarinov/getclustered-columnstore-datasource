@@ -188,4 +188,166 @@ describe("queryParams", () => {
 			}),
 		);
 	});
+	it("forwards eq filter to backend", async () => {
+		const ds = new DataSource({
+			url: "https://localhost",
+			jsonData: {},
+		} as unknown as DataSourceInstanceSettings<ColumnStoreOptions>);
+
+		await ds.query({
+			targets: [
+				{
+					filters: [{ id: "1", field: "env", op: "eq", value: "prod" }],
+					limit: 100,
+				},
+			],
+			range: {
+				from: { toISOString: () => "2026-01-01T00:00:00Z" },
+				to: { toISOString: () => "2026-01-02T00:00:00Z" },
+			},
+		} as unknown as DataQueryRequest<EventQuery>);
+		expect(mockFetch).toHaveBeenCalledWith(
+			expect.objectContaining({
+				data: expect.objectContaining({
+					filters: [{ field: "env", op: "eq", value: "prod" }],
+				}),
+			}),
+		);
+	});
+
+	it("forwards not_exists filter to backend without value", async () => {
+		const ds = new DataSource({
+			url: "https://localhost",
+			jsonData: {},
+		} as unknown as DataSourceInstanceSettings<ColumnStoreOptions>);
+
+		await ds.query({
+			targets: [
+				{
+					filters: [{ id: "1", field: "reason", op: "not_exists" }],
+					limit: 100,
+				},
+			],
+			range: {
+				from: { toISOString: () => "2026-01-01T00:00:00Z" },
+				to: { toISOString: () => "2026-01-02T00:00:00Z" },
+			},
+		} as unknown as DataQueryRequest<EventQuery>);
+		expect(mockFetch).toHaveBeenCalledWith(
+			expect.objectContaining({
+				data: expect.objectContaining({
+					filters: [{ field: "reason", op: "not_exists" }],
+				}),
+			}),
+		);
+	});
+
+	it("forwards gt filter with numeric value to backend", async () => {
+		const ds = new DataSource({
+			url: "https://localhost",
+			jsonData: {},
+		} as unknown as DataSourceInstanceSettings<ColumnStoreOptions>);
+
+		await ds.query({
+			targets: [
+				{
+					filters: [{ id: "1", field: "latency", op: "gt", value: 500 }],
+					limit: 100,
+				},
+			],
+			range: {
+				from: { toISOString: () => "2026-01-01T00:00:00Z" },
+				to: { toISOString: () => "2026-01-02T00:00:00Z" },
+			},
+		} as unknown as DataQueryRequest<EventQuery>);
+		expect(mockFetch).toHaveBeenCalledWith(
+			expect.objectContaining({
+				data: expect.objectContaining({
+					filters: [{ field: "latency", op: "gt", value: 500 }],
+				}),
+			}),
+		);
+	});
+
+	it("forwards lt filter with numeric value to backend", async () => {
+		const ds = new DataSource({
+			url: "https://localhost",
+			jsonData: {},
+		} as unknown as DataSourceInstanceSettings<ColumnStoreOptions>);
+
+		await ds.query({
+			targets: [
+				{
+					filters: [{ id: "1", field: "latency", op: "lt", value: 200 }],
+					limit: 100,
+				},
+			],
+			range: {
+				from: { toISOString: () => "2026-01-01T00:00:00Z" },
+				to: { toISOString: () => "2026-01-02T00:00:00Z" },
+			},
+		} as unknown as DataQueryRequest<EventQuery>);
+		expect(mockFetch).toHaveBeenCalledWith(
+			expect.objectContaining({
+				data: expect.objectContaining({
+					filters: [{ field: "latency", op: "lt", value: 200 }],
+				}),
+			}),
+		);
+	});
+
+	it("forwards gte filter with numeric value to backend", async () => {
+		const ds = new DataSource({
+			url: "https://localhost",
+			jsonData: {},
+		} as unknown as DataSourceInstanceSettings<ColumnStoreOptions>);
+
+		await ds.query({
+			targets: [
+				{
+					filters: [{ id: "1", field: "latency", op: "gte", value: 100 }],
+					limit: 100,
+				},
+			],
+			range: {
+				from: { toISOString: () => "2026-01-01T00:00:00Z" },
+				to: { toISOString: () => "2026-01-02T00:00:00Z" },
+			},
+		} as unknown as DataQueryRequest<EventQuery>);
+		expect(mockFetch).toHaveBeenCalledWith(
+			expect.objectContaining({
+				data: expect.objectContaining({
+					filters: [{ field: "latency", op: "gte", value: 100 }],
+				}),
+			}),
+		);
+	});
+
+	it("forwards lte filter with numeric value to backend", async () => {
+		const ds = new DataSource({
+			url: "https://localhost",
+			jsonData: {},
+		} as unknown as DataSourceInstanceSettings<ColumnStoreOptions>);
+
+		await ds.query({
+			targets: [
+				{
+					filters: [{ id: "1", field: "latency", op: "lte", value: 1000 }],
+					limit: 100,
+				},
+			],
+			range: {
+				from: { toISOString: () => "2026-01-01T00:00:00Z" },
+				to: { toISOString: () => "2026-01-02T00:00:00Z" },
+			},
+		} as unknown as DataQueryRequest<EventQuery>);
+		expect(mockFetch).toHaveBeenCalledWith(
+			expect.objectContaining({
+				data: expect.objectContaining({
+					filters: [{ field: "latency", op: "lte", value: 1000 }],
+				}),
+			}),
+		);
+	});
+
 });

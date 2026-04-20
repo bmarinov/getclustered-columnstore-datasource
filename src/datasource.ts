@@ -15,6 +15,7 @@ import {
 	type DataSourceResponse,
 	DEFAULT_QUERY,
 	type EventQuery,
+	isNumericFilterOp,
 } from "./types";
 
 const DURATION_NS: Record<string, number> = {
@@ -80,7 +81,13 @@ export class DataSource extends DataSourceApi<EventQuery, ColumnStoreOptions> {
 							select: target.select,
 							aggregations: target.aggregations,
 							groupBy: target.groupBy,
-							filters: (target.filters ?? []).map(({ id: _, ...f }) => f),
+							filters: (target.filters ?? []).map(({ id: _, ...f }) => ({
+							...f,
+							value:
+								isNumericFilterOp(f.op) && typeof f.value === "string"
+									? parseFloat(f.value)
+									: f.value,
+						})),
 							window: windowToNs(target.window, options.intervalMs),
 						},
 					}),

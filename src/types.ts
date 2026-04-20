@@ -12,7 +12,11 @@ export interface EventQuery extends DataQuery {
 	window?: string;
 }
 
-export type FilterOp = "eq" | "exists";
+export type FilterOp = "eq" | "exists" | "not_exists" | "gt" | "lt" | "gte" | "lte";
+
+export function isNumericFilterOp(op: FilterOp): boolean {
+	return op === "gt" || op === "lt" || op === "gte" || op === "lte";
+}
 
 export type Filter = {
 	id: string;
