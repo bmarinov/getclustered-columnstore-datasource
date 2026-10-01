@@ -34,10 +34,16 @@ export function windowToNs(
 	window: string | undefined,
 	intervalMs: number,
 ): number | undefined {
-	if (!window) return undefined;
-	if (window === "auto") return Math.round(intervalMs * 1_000_000);
+	if (!window) {
+		return undefined;
+	}
+	if (window === "auto") {
+		return Math.round(intervalMs * 1_000_000);
+	}
 	const m = window.match(/^(\d+)([smhd])$/);
-	if (!m) return undefined;
+	if (!m) {
+		return undefined;
+	}
 	return parseInt(m[1], 10) * DURATION_NS[m[2]];
 }
 
@@ -82,12 +88,12 @@ export class DataSource extends DataSourceApi<EventQuery, ColumnStoreOptions> {
 							aggregations: target.aggregations,
 							groupBy: target.groupBy,
 							filters: (target.filters ?? []).map(({ id: _, ...f }) => ({
-							...f,
-							value:
-								isNumericFilterOp(f.op) && typeof f.value === "string"
-									? parseFloat(f.value)
-									: f.value,
-						})),
+								...f,
+								value:
+									isNumericFilterOp(f.op) && typeof f.value === "string"
+										? parseFloat(f.value)
+										: f.value,
+							})),
 							window: windowToNs(target.window, options.intervalMs),
 						},
 					}),

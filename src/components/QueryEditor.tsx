@@ -34,9 +34,10 @@ const FILTER_OPS: Array<{ label: string; value: FilterOp }> = [
 ];
 
 function needsValue(op: FilterOp): boolean {
-	return op === "eq" || op === "gt" || op === "lt" || op === "gte" || op === "lte";
+	return (
+		op === "eq" || op === "gt" || op === "lt" || op === "gte" || op === "lte"
+	);
 }
-
 
 const AGG_OPS = [
 	{ label: "None", value: "" },
@@ -55,7 +56,9 @@ export function QueryEditor({ query, onChange, onRunQuery }: Props) {
 
 	// Fires query when Enter is pressed in a text input.
 	const runOnEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
-		if (e.key === "Enter") onRunQuery();
+		if (e.key === "Enter") {
+			onRunQuery();
+		}
 	};
 
 	// SELECT
@@ -91,7 +94,9 @@ export function QueryEditor({ query, onChange, onRunQuery }: Props) {
 				i === index ? { ...f, ...patch } : f,
 			),
 		});
-		if (run) onRunQuery();
+		if (run) {
+			onRunQuery();
+		}
 	};
 	const removeFilter = (index: number) => {
 		onChange({
