@@ -3,3 +3,6 @@ services:
     extends:
       file: .config/docker-compose-base.yaml
       service: grafana
+    # Lets the provisioned data source reach a backend on the Docker host (Linux needs this).
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
