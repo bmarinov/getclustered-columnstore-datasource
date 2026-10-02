@@ -1,115 +1,145 @@
-# Grafana data source plugin template
+# Columnstore data source for Grafana
 
-This template is a starting point for building a Data Source Plugin for Grafana.
+A Grafana data source plugin for querying a wide-event store over HTTP. Events are rows of
+arbitrary fields with a timestamp. The query editor builds select, filter, aggregate, group-by and
+time-bucket queries, and the result is rendered as a Grafana data frame.
 
-## What are Grafana data source plugins?
+The plugin is frontend-only. Requests go through Grafana's data source proxy, so the browser never
+talks to the backend directly, and the backend URL is the only configuration.
 
-Grafana supports a wide range of data sources, including Prometheus, MySQL, and even Datadog. There’s a good chance you can already visualize metrics from the systems you have set up. In some cases, though, you already have an in-house metrics solution that you’d like to add to your Grafana dashboards. Grafana Data Source Plugins enables integrating such solutions with Grafana.
+- [What it does](#what-it-does)
+- [Backend contract](#backend-contract)
+- [Run it locally](#run-it-locally)
+- [Install into an existing Grafana](#install-into-an-existing-grafana)
+- [Development](#development)
+- [Limits](#limits)
 
-## Getting started
+## What it does
 
-### Frontend
+The query editor exposes one query shape:
 
-1. Install dependencies
+| Clause | Editor control | Sent as |
+|---|---|---|
+| SELECT | field names, one per Enter | `select: string[]` |
+| LIMIT | number, default 1000 | `limit: number` |
+| WHERE / AND | field, operator, value per row | `filters: [{ field, op, value? }]` |
+| AGGREGATE | one of COUNT, AVG, SUM, MAX, MIN plus a column | `aggregations: [{ op, column }]` |
+| BUCKET | `auto`, a preset, or any duration like `90s` | `window: number` (nanoseconds) |
+| GROUP BY | comma-separated field names | `groupBy: string[]` |
 
-   ```bash
-   pnpm install
-   ```
+Filter operators are `eq`, `exists`, `not_exists`, `gt`, `lt`, `gte`, `lte`. The four comparison
+operators send their value as a number; `eq` sends it as entered; `exists` and `not_exists` send
+no value. `auto` for BUCKET resolves to the interval Grafana computed for the panel.
 
-2. Build plugin in development mode and run in watch mode
+Each row the backend returns becomes a row in a data frame. A `ts` key becomes the time field.
+Every other key becomes a field whose type is inferred from its first non-null value: number, or
+string for anything else. Rows that lack a key get `null` in that field, so sparse results line up.
 
-   ```bash
-   pnpm run dev
-   ```
+Save & test calls the backend's health endpoint through the proxy.
 
-3. Build plugin in production mode
+## Backend contract
 
-   ```bash
-   pnpm run build
-   ```
+Any HTTP server that implements these two endpoints works. `{url}` is the URL configured in the
+data source settings.
 
-4. Run the tests (using Jest)
+| Request | Used for | Response |
+|---|---|---|
+| `GET {url}/health` | Save & test | status `200` |
+| `POST {url}/query/json?from=<RFC3339>&to=<RFC3339>` | every panel query | JSON array of row objects |
 
-   ```bash
-   # Runs the tests and watches for changes, requires git init first
-   pnpm run test
+Request body for a query. Absent clauses are omitted:
 
-   # Exits after running all the tests
-   pnpm run test:ci
-   ```
+```json
+{
+  "limit": 1000,
+  "select": ["service.name", "duration_ms"],
+  "filters": [{ "field": "service.name", "op": "eq", "value": "api" }],
+  "aggregations": [{ "op": "AVG", "column": "duration_ms" }],
+  "groupBy": ["service.name"],
+  "window": 60000000000
+}
+```
 
-5. Spin up a Grafana instance and run the plugin inside it (using Docker)
+Response: one object per row. Keys are free-form; `ts` must be an RFC 3339 timestamp.
 
-   ```bash
-   pnpm run server
-   ```
+```json
+[
+  { "ts": "2026-04-12T10:00:00Z", "service.name": "api", "AVG(duration_ms)": 12.5 },
+  { "ts": "2026-04-12T10:01:00Z", "service.name": "web", "AVG(duration_ms)": 30.0 }
+]
+```
 
-6. Run the E2E tests (using Playwright)
+The plugin was developed against a columnar event store with OTLP ingestion. That store is not
+part of this repository.
 
-   ```bash
-   # Spins up a Grafana instance first that we tests against
-   pnpm run server
+## Run it locally
 
-   # If you wish to start a certain Grafana version. If not specified will use latest by default
-   GRAFANA_VERSION=11.3.0 pnpm run server
+Requires Node 22, pnpm 10 (pinned in `package.json`) and Docker.
 
-   # Starts the tests
-   pnpm run e2e
-   ```
+```bash
+pnpm install
+pnpm dev          # or: pnpm build
+pnpm server       # Grafana on http://localhost:3000, anonymous admin
+```
 
-7. Run the linter
+`pnpm server` starts Grafana with the plugin mounted from `dist/` and a provisioned data source
+named `columnstore` that points at `http://host.docker.internal:8080`. The compose file maps that
+host name to the Docker host, so a backend listening on port 8080 on your machine is reachable
+without further setup. Change the URL in the data source settings to point anywhere else.
 
-   ```bash
-   pnpm run lint
+## Install into an existing Grafana
 
-   # or
+The plugin is unsigned, so Grafana has to be told to load it.
 
-   pnpm run lint:fix
-   ```
+```bash
+pnpm build
+cp -r dist /var/lib/grafana/plugins/getclustered-columnstore-datasource
+```
 
-# Distributing your plugin
+Set `GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=getclustered-columnstore-datasource`, restart
+Grafana, add a data source of type Columnstore and enter the backend URL.
 
-When distributing a Grafana plugin either within the community or privately the plugin must be signed so the Grafana application can verify its authenticity. This can be done with the `@grafana/sign-plugin` package.
+## Development
 
-_Note: It's not necessary to sign a plugin during development. The docker development environment that is scaffolded with `@grafana/create-plugin` caters for running the plugin without a signature._
+| Task | Command |
+|---|---|
+| Build once | `pnpm build` |
+| Watch build | `pnpm dev` |
+| Unit tests | `pnpm test:ci` (watch: `pnpm test`) |
+| Type check | `pnpm typecheck` |
+| ESLint (create-plugin config) | `pnpm lint` |
+| Format and lint with Biome | `pnpm exec biome check --write .` |
+| Grafana for manual testing and e2e | `pnpm server` |
+| End-to-end tests | `pnpm exec playwright install chromium` once, then `pnpm e2e` with the server running |
 
-## Initial steps
+Source layout:
 
-Before signing a plugin please read the Grafana [plugin publishing and signing criteria](https://grafana.com/legal/plugins/#plugin-publishing-and-signing-criteria) documentation carefully.
+| Path | Contents |
+|---|---|
+| `src/datasource.ts` | query execution, `windowToNs`, `rowsToFrame` |
+| `src/components/QueryEditor.tsx` | the query editor |
+| `src/components/ConfigEditor.tsx` | data source settings |
+| `src/types.ts` | query and options types |
+| `src/plugin.json` | plugin manifest, including the proxy route to the backend |
+| `tests/` | Playwright tests built on `@grafana/plugin-e2e` |
+| `provisioning/` | data source used by `pnpm server` and the e2e tests |
+| `.config/` | generated by `@grafana/create-plugin`, not edited by hand |
 
-`@grafana/create-plugin` has added the necessary commands and workflows to make signing and distributing a plugin via the grafana plugins catalog as straightforward as possible.
+Formatting is Biome (tabs, double quotes). `pnpm lint` runs the ESLint config that
+`create-plugin` ships, which is also what CI runs.
 
-Before signing a plugin for the first time please consult the Grafana [plugin signature levels](https://grafana.com/legal/plugins/#what-are-the-different-classifications-of-plugins) documentation to understand the differences between the types of signature level.
+## Limits
 
-1. Create a [Grafana Cloud account](https://grafana.com/signup).
-2. Make sure that the first part of the plugin ID matches the slug of your Grafana Cloud account.
-   - _You can find the plugin ID in the `plugin.json` file inside your plugin directory. For example, if your account slug is `acmecorp`, you need to prefix the plugin ID with `acmecorp-`._
-3. Create a Grafana Cloud API key with the `PluginPublisher` role.
-4. Keep a record of this API key as it will be required for signing a plugin
+- Unsigned and not in the Grafana plugin catalog.
+- One aggregation per query, and no ORDER BY. LIMIT on a raw query returns the backend's natural
+  order.
+- Dashboard variables are not interpolated in query fields.
+- Field types are inferred from the first non-null value of a column. Booleans and nested values
+  are typed as strings.
+- The API key field in the settings is stored as a secure field but is not sent to the backend.
+  The backend this plugin was built against has no authentication.
+- Only the JSON query endpoint is used. Streaming responses are not supported.
 
-## Signing a plugin
+## License
 
-### Using Github actions release workflow
-
-If the plugin is using the github actions supplied with `@grafana/create-plugin` signing a plugin is included out of the box. The [release workflow](./.github/workflows/release.yml) can prepare everything to make submitting your plugin to Grafana as easy as possible. Before being able to sign the plugin however a secret needs adding to the Github repository.
-
-1. Please navigate to "settings > secrets > actions" within your repo to create secrets.
-2. Click "New repository secret"
-3. Name the secret "GRAFANA_API_KEY"
-4. Paste your Grafana Cloud API key in the Secret field
-5. Click "Add secret"
-
-#### Push a version tag
-
-To trigger the workflow we need to push a version tag to github. This can be achieved with the following steps:
-
-1. Run `npm version <major|minor|patch>`
-2. Run `git push origin main --follow-tags`
-
-## Learn more
-
-Below you can find source code for existing app plugins and other related documentation.
-
-- [Basic data source plugin example](https://github.com/grafana/grafana-plugin-examples/tree/master/examples/datasource-basic#readme)
-- [`plugin.json` documentation](https://grafana.com/developers/plugin-tools/reference/plugin-json)
-- [How to sign a plugin?](https://grafana.com/developers/plugin-tools/publish-a-plugin/sign-a-plugin)
+Apache-2.0. See [LICENSE](LICENSE).

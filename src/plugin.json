@@ -5,16 +5,25 @@
 	"id": "getclustered-columnstore-datasource",
 	"metrics": true,
 	"info": {
-		"description": "",
+		"description": "Query a wide-event store over HTTP: filters, aggregations, group by and time buckets.",
 		"author": {
 			"name": "Getclustered"
 		},
-		"keywords": ["datasource"],
+		"keywords": ["datasource", "events", "columnar", "otel"],
 		"logos": {
 			"small": "img/logo.svg",
 			"large": "img/logo.svg"
 		},
-		"links": [],
+		"links": [
+			{
+				"name": "GitHub",
+				"url": "https://github.com/bmarinov/getclustered-columnstore-datasource"
+			},
+			{
+				"name": "License",
+				"url": "https://github.com/bmarinov/getclustered-columnstore-datasource/blob/main/LICENSE"
+			}
+		],
 		"screenshots": [],
 		"version": "%VERSION%",
 		"updated": "%TODAY%"
