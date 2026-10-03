@@ -43,8 +43,8 @@ importers:
         specifier: ^9.0.0
         version: 9.0.0(@stylistic/eslint-plugin-ts@4.4.1(eslint@9.39.4)(typescript@5.9.2))(@typescript-eslint/eslint-plugin@8.58.0(@typescript-eslint/parser@8.58.0(eslint@9.39.4)(typescript@5.9.2))(eslint@9.39.4)(typescript@5.9.2))(@typescript-eslint/parser@8.58.0(eslint@9.39.4)(typescript@5.9.2))(eslint-config-prettier@10.1.8(eslint@9.39.4))(eslint-plugin-jsdoc@52.0.4(eslint@9.39.4))(eslint-plugin-react-hooks@7.0.1(eslint@9.39.4))(eslint-plugin-react@7.37.5(eslint@9.39.4))(eslint@9.39.4)(typescript@5.9.2)
       '@grafana/plugin-e2e':
-        specifier: ^3.4.12
-        version: 3.4.12(@playwright/test@1.59.1)
+        specifier: ^3.14.0
+        version: 3.14.0(@playwright/test@1.59.1)
       '@grafana/tsconfig':
         specifier: ^2.0.1
         version: 2.0.1
@@ -184,6 +184,10 @@ packages:
     resolution: {integrity: sha512-9NhCeYjq9+3uxgdtp20LSiJXJvN0FeCtNGpJxuMFZ1Kv3cWUNb6DOhJwUvcVCzKGR66cw4njwM6hrJLqgOwbcw==}
     engines: {node: '>=6.9.0'}
 
+  '@babel/code-frame@7.29.7':
+    resolution: {integrity: sha512-Aup7aUOfpbAUg2ROOJN6Iw5f9DMBlzu0mIkm/malLQFN/YQgO48wCj0Kxa3sEHJvPVFg7siR+qRInwXd2qhQKw==}
+    engines: {node: '>=6.9.0'}
+
   '@babel/compat-data@7.29.0':
     resolution: {integrity: sha512-T1NCJqT/j9+cn8fvkt7jtwbLBfLC/1y1c7NtCeXFRgzGTsafi68MRv8yzkYSapBnFA6L3U2VSc02ciDzoAJhJg==}
     engines: {node: '>=6.9.0'}
@@ -224,6 +228,10 @@ packages:
 
   '@babel/helper-validator-identifier@7.28.5':
     resolution: {integrity: sha512-qSs4ifwzKJSV39ucNjsvc6WVHs6b7S03sOh2OcHF9UHfVPqWWALUsNUVzhSBiItjRZoLHx7nIarVjqKVusUZ1Q==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/helper-validator-identifier@7.29.7':
+    resolution: {integrity: sha512-qehxGkRj55h/ff8EMaJ+cYhyaKlHIxqYDn682wQD7RNp9UujOQsHog2uS0r2vzr4pW+sXf90NeeayjcNaX3fFg==}
     engines: {node: '>=6.9.0'}
 
   '@babel/helper-validator-option@7.27.1':
@@ -332,6 +340,10 @@ packages:
 
   '@babel/runtime@7.29.2':
     resolution: {integrity: sha512-JiDShH45zKHWyGe4ZNVRrCjBz8Nh9TMmZG1kh4QTK8hCBTWBi8Da+i7s1fJw7/lYpM4ccepSNfqzZ/QvABBi5g==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/runtime@7.29.7':
+    resolution: {integrity: sha512-Nq8OhGWiZIZGV6hLHoyAKLLcJihP/xFeBMGJoUrxTX2psI8dCifzLhZISFb+VWS3wFMRDmCGw5R+dOySCqPLhw==}
     engines: {node: '>=6.9.0'}
 
   '@babel/template@7.28.6':
@@ -554,8 +566,8 @@ packages:
   '@grafana/e2e-selectors@12.4.2':
     resolution: {integrity: sha512-Kx2joGz/jql32HgD6+pJTHRkAGL7rJC+WE+fl/wZFThmQUIGpuJjwJYL0aOmYvOZeWwVLFnyrFCiNs48s3AZJg==}
 
-  '@grafana/e2e-selectors@13.0.0-23624974663':
-    resolution: {integrity: sha512-Bk9EQ63t5MJZL2BPe+WJ8PAUvb1x7/DD2DIQxm+i7ZTVlAYuP5SlnvBkWzUoKgiVerCbrYY6C3OCIUjUAgQoKA==}
+  '@grafana/e2e-selectors@13.2.0-30594044109':
+    resolution: {integrity: sha512-CRN0CTsSkAC3qQvufbR7duUzSX2Jfgc/g5ap+eSrjcFcS+vAVUDGfQVLK6y5ojN+B0gATNIbmVlCGngQxmm+eA==}
 
   '@grafana/eslint-config@9.0.0':
     resolution: {integrity: sha512-Jw7/kyO29iNKiHrDwsVwP3/YSNdYCt8ofCgSFNfcYQeK7+Z3zn1RrMBXWohVQ47OuwjXr6AUqo5ReQBCPq6Fzw==}
@@ -581,8 +593,8 @@ packages:
     peerDependencies:
       react: '>=18'
 
-  '@grafana/plugin-e2e@3.4.12':
-    resolution: {integrity: sha512-Cewa6lhJL4ayRllwnHU7F35Wia3VweBHVtW/3RKxBSg0Ml/11xv3PrProsD73V75WHVCa9sO73mtH66WS+IihQ==}
+  '@grafana/plugin-e2e@3.14.0':
+    resolution: {integrity: sha512-hbfyAp5Bh1/F8SlzicFumTgDS2Br6XEs7dPpk/SA7MHvF64ZSwxQSsmurEPapaUOO+PfQKkHLLJRIJX9ZP+Tug==}
     engines: {node: '>=20 <=24'}
     peerDependencies:
       '@axe-core/playwright': ^4.11.1
@@ -2398,6 +2410,7 @@ packages:
   eslint@9.39.4:
     resolution: {integrity: sha512-XoMjdBOwe/esVgEvLmNsD3IRHkm7fbKIUGvrleloJXUZgDHig2IPWNniv+GwjyJXzuNqVjlr5+4yVUZjycJwfQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
     peerDependencies:
       jiti: '*'
@@ -4518,10 +4531,6 @@ packages:
     resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
     hasBin: true
 
-  uuid@13.0.0:
-    resolution: {integrity: sha512-XQegIaBTVUjSHliKqcnFqYypAd4S+WCYt5NIeRs6w/UAry7z8Y9j5ZwRRL4kzq9U3sD6v+85er9FvkEaBpji2w==}
-    hasBin: true
-
   uwrap@0.1.2:
     resolution: {integrity: sha512-f3EJhcx+pB6sWtBZOKAcJ+RweICm/FmFiqCfMy3OLpsXNcf2P5tEYn8nu3BIBYTI/srzN+VrfRN1tCkJL6QuLg==}
 
@@ -4712,8 +4721,8 @@ packages:
     resolution: {integrity: sha512-vIYeF1u3CjlhAFekPPAk2h/Kv4T3mAkMox5OymRiJQB0spDP10LHvt+K7G9Ny6NuuMAb25/6n1qyUjAcGNf/AA==}
     engines: {node: '>= 6'}
 
-  yaml@2.8.3:
-    resolution: {integrity: sha512-AvbaCLOO2Otw/lW5bmh9d/WEdcDFdQp2Z2ZUH3pX9U2ihyUY0nvLv7J6TrWowklRGPYbB/IuIMfYgxaCPg5Bpg==}
+  yaml@2.9.1:
+    resolution: {integrity: sha512-3NxN8+78OdzbT7C/WjGsyfPAtJaN3FNDsWxv7Y7mcDsT/oOmgW8BpyQQFFBnvZE3j9Y2Sdz1ULFLezL7Eb2yFw==}
     engines: {node: '>= 14.6'}
     hasBin: true
 
@@ -4752,6 +4761,12 @@ snapshots:
   '@babel/code-frame@7.29.0':
     dependencies:
       '@babel/helper-validator-identifier': 7.28.5
+      js-tokens: 4.0.0
+      picocolors: 1.1.1
+
+  '@babel/code-frame@7.29.7':
+    dependencies:
+      '@babel/helper-validator-identifier': 7.29.7
       js-tokens: 4.0.0
       picocolors: 1.1.1
 
@@ -4816,6 +4831,8 @@ snapshots:
   '@babel/helper-string-parser@7.27.1': {}
 
   '@babel/helper-validator-identifier@7.28.5': {}
+
+  '@babel/helper-validator-identifier@7.29.7': {}
 
   '@babel/helper-validator-option@7.27.1': {}
 
@@ -4914,6 +4931,8 @@ snapshots:
       '@babel/helper-plugin-utils': 7.28.6
 
   '@babel/runtime@7.29.2': {}
+
+  '@babel/runtime@7.29.7': {}
 
   '@babel/template@7.28.6':
     dependencies:
@@ -5223,11 +5242,9 @@ snapshots:
       tslib: 2.8.1
       typescript: 5.9.2
 
-  '@grafana/e2e-selectors@13.0.0-23624974663':
+  '@grafana/e2e-selectors@13.2.0-30594044109':
     dependencies:
       semver: 7.7.4
-      tslib: 2.8.1
-      typescript: 5.9.2
 
   '@grafana/eslint-config@9.0.0(@stylistic/eslint-plugin-ts@4.4.1(eslint@9.39.4)(typescript@5.9.2))(@typescript-eslint/eslint-plugin@8.58.0(@typescript-eslint/parser@8.58.0(eslint@9.39.4)(typescript@5.9.2))(eslint@9.39.4)(typescript@5.9.2))(@typescript-eslint/parser@8.58.0(eslint@9.39.4)(typescript@5.9.2))(eslint-config-prettier@10.1.8(eslint@9.39.4))(eslint-plugin-jsdoc@52.0.4(eslint@9.39.4))(eslint-plugin-react-hooks@7.0.1(eslint@9.39.4))(eslint-plugin-react@7.37.5(eslint@9.39.4))(eslint@9.39.4)(typescript@5.9.2)':
     dependencies:
@@ -5270,13 +5287,11 @@ snapshots:
       - supports-color
       - typescript
 
-  '@grafana/plugin-e2e@3.4.12(@playwright/test@1.59.1)':
+  '@grafana/plugin-e2e@3.14.0(@playwright/test@1.59.1)':
     dependencies:
-      '@grafana/e2e-selectors': 13.0.0-23624974663
+      '@grafana/e2e-selectors': 13.2.0-30594044109
       '@playwright/test': 1.59.1
-      semver: 7.7.4
-      uuid: 13.0.0
-      yaml: 2.8.3
+      yaml: 2.9.1
 
   '@grafana/runtime@12.4.2(@openfeature/web-sdk@1.7.3(@openfeature/core@1.9.2))(@types/react@18.3.28)(eslint@9.39.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.2)':
     dependencies:
@@ -6196,8 +6211,8 @@ snapshots:
 
   '@testing-library/dom@10.4.1':
     dependencies:
-      '@babel/code-frame': 7.29.0
-      '@babel/runtime': 7.29.2
+      '@babel/code-frame': 7.29.7
+      '@babel/runtime': 7.29.7
       '@types/aria-query': 5.0.4
       aria-query: 5.3.0
       dom-accessibility-api: 0.5.16
@@ -9913,8 +9928,6 @@ snapshots:
 
   uuid@11.1.0: {}
 
-  uuid@13.0.0: {}
-
   uwrap@0.1.2: {}
 
   v8-compile-cache-lib@3.0.1: {}
@@ -10128,7 +10141,7 @@ snapshots:
 
   yaml@1.10.3: {}
 
-  yaml@2.8.3: {}
+  yaml@2.9.1: {}
 
   yargs-parser@21.1.1: {}
 
