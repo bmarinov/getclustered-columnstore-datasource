@@ -6,7 +6,7 @@ import {
 import { type BackendSrv, setBackendSrv } from "@grafana/runtime";
 import { of } from "rxjs";
 import type { ColumnStoreOptions, EventQuery } from "types";
-import rows from "./__fixtures__/rows.json";
+import rows from "./__fixtures__/rows";
 import { DataSource, rowsToFrame, windowToNs } from "./datasource";
 
 describe("rowsToFrame", () => {

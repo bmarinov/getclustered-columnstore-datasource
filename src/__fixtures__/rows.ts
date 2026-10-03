@@ -1,4 +1,4 @@
-[
+const rows = [
 	{
 		"host.name": "fw3kd",
 		"os.type": "linux",
@@ -43,7 +43,7 @@
 		"system.disk.weighted_io_time.nvme0n1p6": 12356.658,
 		"system.disk.weighted_io_time.nvme0n1p7": 281.115,
 		"system.disk.weighted_io_time.zram0": 17.195,
-		"ts": "2026-04-12T08:18:19.921005728Z"
+		ts: "2026-04-12T08:18:19.921005728Z",
 	},
 	{
 		"host.name": "fw3kd",
@@ -56,7 +56,7 @@
 		"system.cpu.time.system": 7400.12,
 		"system.cpu.time.user": 6204.35,
 		"system.cpu.time.wait": 408.04,
-		"ts": "2026-04-12T08:18:19.921303226Z"
+		ts: "2026-04-12T08:18:19.921303226Z",
 	},
 	{
 		"host.name": "fw3kd",
@@ -64,7 +64,7 @@
 		"system.cpu.load_average.15m": 4.08,
 		"system.cpu.load_average.1m": 4.89,
 		"system.cpu.load_average.5m": 4.21,
-		"ts": "2026-04-12T08:18:19.921401199Z"
+		ts: "2026-04-12T08:18:19.921401199Z",
 	},
 	{
 		"host.name": "fw3kd",
@@ -75,7 +75,7 @@
 		"system.memory.usage.slab_reclaimable": 2093617152,
 		"system.memory.usage.slab_unreclaimable": 1125347328,
 		"system.memory.usage.used": 34093490176,
-		"ts": "2026-04-12T08:18:19.921422409Z"
+		ts: "2026-04-12T08:18:19.921422409Z",
 	},
 	{
 		"host.name": "fw3kd",
@@ -87,7 +87,7 @@
 		"system.processes.count.unknown": 3,
 		"system.processes.count.zombies": 4,
 		"system.processes.created": 4014831,
-		"ts": "2026-04-12T08:18:19.921462565Z"
+		ts: "2026-04-12T08:18:19.921462565Z",
 	},
 	{
 		"host.name": "fw3kd",
@@ -104,7 +104,7 @@
 		"system.network.connections.SYN_RECV": 0,
 		"system.network.connections.SYN_SENT": 0,
 		"system.network.connections.TIME_WAIT": 4,
-		"ts": "2026-04-12T08:18:19.960870008Z"
+		ts: "2026-04-12T08:18:19.960870008Z",
 	},
 	{
 		"host.name": "fw3kd",
@@ -117,7 +117,7 @@
 		"system.network.io.transmit": 1156532288,
 		"system.network.packets.receive": 1412785,
 		"system.network.packets.transmit": 1412785,
-		"ts": "2026-04-12T08:18:19.960766043Z"
+		ts: "2026-04-12T08:18:19.960766043Z",
 	},
 	{
 		"host.name": "fw3kd",
@@ -163,7 +163,7 @@
 		"system.disk.weighted_io_time.nvme0n1p6": 12356.33,
 		"system.disk.weighted_io_time.nvme0n1p7": 281.115,
 		"system.disk.weighted_io_time.zram0": 17.195,
-		"ts": "2026-04-12T08:18:09.921033125Z"
+		ts: "2026-04-12T08:18:09.921033125Z",
 	},
 	{
 		"host.name": "fw3kd",
@@ -176,7 +176,7 @@
 		"system.cpu.time.system": 7399.81,
 		"system.cpu.time.user": 6204,
 		"system.cpu.time.wait": 408.04,
-		"ts": "2026-04-12T08:18:09.921680339Z"
+		ts: "2026-04-12T08:18:09.921680339Z",
 	},
 	{
 		"host.name": "fw3kd",
@@ -184,7 +184,7 @@
 		"system.cpu.load_average.15m": 4.04,
 		"system.cpu.load_average.1m": 4.33,
 		"system.cpu.load_average.5m": 4.08,
-		"ts": "2026-04-12T08:18:09.921974601Z"
+		ts: "2026-04-12T08:18:09.921974601Z",
 	},
 	{
 		"host.name": "fw3kd",
@@ -195,7 +195,7 @@
 		"system.memory.usage.slab_reclaimable": 2093617152,
 		"system.memory.usage.slab_unreclaimable": 1125400576,
 		"system.memory.usage.used": 34050703360,
-		"ts": "2026-04-12T08:18:09.922033231Z"
+		ts: "2026-04-12T08:18:09.922033231Z",
 	},
 	{
 		"host.name": "fw3kd",
@@ -207,7 +207,7 @@
 		"system.processes.count.unknown": 5,
 		"system.processes.count.zombies": 4,
 		"system.processes.created": 4014606,
-		"ts": "2026-04-12T08:18:09.922159788Z"
+		ts: "2026-04-12T08:18:09.922159788Z",
 	},
 	{
 		"host.name": "fw3kd",
@@ -224,7 +224,7 @@
 		"system.network.connections.SYN_RECV": 0,
 		"system.network.connections.SYN_SENT": 0,
 		"system.network.connections.TIME_WAIT": 4,
-		"ts": "2026-04-12T08:18:09.963294792Z"
+		ts: "2026-04-12T08:18:09.963294792Z",
 	},
 	{
 		"host.name": "fw3kd",
@@ -237,7 +237,7 @@
 		"system.network.io.transmit": 1156499808,
 		"system.network.packets.receive": 1412692,
 		"system.network.packets.transmit": 1412692,
-		"ts": "2026-04-12T08:18:09.963213599Z"
+		ts: "2026-04-12T08:18:09.963213599Z",
 	},
 	{
 		"host.name": "fw3kd",
@@ -245,7 +245,7 @@
 		"system.cpu.load_average.15m": 4.04,
 		"system.cpu.load_average.1m": 4.21,
 		"system.cpu.load_average.5m": 4.09,
-		"ts": "2026-04-12T08:18:29.921374343Z"
+		ts: "2026-04-12T08:18:29.921374343Z",
 	},
 	{
 		"host.name": "fw3kd",
@@ -256,7 +256,7 @@
 		"system.memory.usage.slab_reclaimable": 2093617152,
 		"system.memory.usage.slab_unreclaimable": 1125310464,
 		"system.memory.usage.used": 34131619840,
-		"ts": "2026-04-12T08:18:29.921414909Z"
+		ts: "2026-04-12T08:18:29.921414909Z",
 	},
 	{
 		"host.name": "fw3kd",
@@ -267,7 +267,7 @@
 		"system.processes.count.sleeping": 508,
 		"system.processes.count.zombies": 4,
 		"system.processes.created": 4014973,
-		"ts": "2026-04-12T08:18:29.921492415Z"
+		ts: "2026-04-12T08:18:29.921492415Z",
 	},
 	{
 		"host.name": "fw3kd",
@@ -284,7 +284,7 @@
 		"system.network.connections.SYN_RECV": 0,
 		"system.network.connections.SYN_SENT": 0,
 		"system.network.connections.TIME_WAIT": 5,
-		"ts": "2026-04-12T08:18:29.965136475Z"
+		ts: "2026-04-12T08:18:29.965136475Z",
 	},
 	{
 		"host.name": "fw3kd",
@@ -297,7 +297,7 @@
 		"system.network.io.transmit": 1156557369,
 		"system.network.packets.receive": 1412856,
 		"system.network.packets.transmit": 1412856,
-		"ts": "2026-04-12T08:18:29.965053279Z"
+		ts: "2026-04-12T08:18:29.965053279Z",
 	},
 	{
 		"host.name": "fw3kd",
@@ -343,6 +343,8 @@
 		"system.disk.weighted_io_time.nvme0n1p6": 12356.805,
 		"system.disk.weighted_io_time.nvme0n1p7": 281.115,
 		"system.disk.weighted_io_time.zram0": 17.195,
-		"ts": "2026-04-12T08:18:29.920757476Z"
-	}
-]
+		ts: "2026-04-12T08:18:29.920757476Z",
+	},
+];
+
+export default rows;

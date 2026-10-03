@@ -29,7 +29,12 @@ test("renders rows returned by the backend as a table", async ({
 			]),
 		}),
 	);
-	await expect(panelEditPage.refreshPanel()).toBeOK();
+	await expect(
+		panelEditPage.refreshPanel({
+			waitForResponsePredicateCallback: (response) =>
+				response.url().includes("/api/query/json"),
+		}),
+	).toBeOK();
 	await expect(panelEditPage.panel.fieldNames).toContainText([
 		"time",
 		"service",

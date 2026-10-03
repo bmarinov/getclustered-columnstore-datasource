@@ -13,6 +13,7 @@ talks to the backend directly, and the backend URL is the only configuration.
 - [Install into an existing Grafana](#install-into-an-existing-grafana)
 - [Development](#development)
 - [Limits](#limits)
+- [Disclaimer on LLM use](#disclaimer-on-llm-use)
 
 ## What it does
 
@@ -141,6 +142,7 @@ Formatting is Biome (tabs, double quotes). `pnpm lint` runs the ESLint config th
 - Only the JSON query endpoint is used. Streaming responses are not supported.
 
 ## Disclaimer on LLM use
+
 Most of the frontend TypeScript code is written with / by an LLM. The query model and the related backend are entirely designed and written by hand and brain.
 
 ## License
