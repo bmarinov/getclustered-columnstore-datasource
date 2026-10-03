@@ -18,7 +18,7 @@ test("renders rows returned by the backend as a table", async ({
 }) => {
 	const ds = await readProvisionedDataSource({ fileName: "datasources.yml" });
 	await panelEditPage.datasource.set(ds.name);
-	await panelEditPage.setVisualization("Table");
+	await panelEditPage.toggleTableView();
 	await page.route(/\/api\/query\/json\?/, (route) =>
 		route.fulfill({
 			status: 200,
