@@ -140,6 +140,9 @@ Formatting is Biome (tabs, double quotes). `pnpm lint` runs the ESLint config th
   The backend this plugin was built against has no authentication.
 - Only the JSON query endpoint is used. Streaming responses are not supported.
 
+## Disclaimer on LLM use
+Most of the frontend TypeScript code is written with / by an LLM. The query model and the related backend are entirely designed and written by hand and brain.
+
 ## License
 
 Apache-2.0. See [LICENSE](LICENSE).
